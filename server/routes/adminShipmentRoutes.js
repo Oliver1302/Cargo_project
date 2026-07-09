@@ -101,5 +101,29 @@ router.patch("/:id/assign", requireAdminRole("super_admin", "dispatcher"), async
   }
 });
 
+// Manually push a location update for a shipment — this is what the future driver-facing
+// mobile page will call automatically via GPS. Useful now for demos and testing.
+router.patch("/:id/location", requireAdminRole("super_admin", "dispatcher"), async (req, res) => {
+  const { lat, lng, speedMph } = req.body;
+  if (lat == null || lng == null) {
+    return res.status(400).json({ error: "lat and lng are required" });
+  }
+
+  try {
+    const { rows } = await pool.query(
+      `UPDATE shipments
+       SET current_lat = $1, current_lng = $2, current_speed_mph = $3, last_location_update = now()
+       WHERE id = $4
+       RETURNING *`,
+      [lat, lng, speedMph || null, req.params.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: "Shipment not found" });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("Location update error:", err.message);
+    res.status(500).json({ error: "Failed to update location" });
+  }
+});
+
 export default router;
 

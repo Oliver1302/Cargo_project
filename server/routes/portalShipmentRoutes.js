@@ -83,4 +83,35 @@ router.post("/", requireClient, async (req, res) => {
   }
 });
 
+// Full detail for one shipment — includes driver + vehicle info and live position,
+// used by the client-facing tracking page. Always scoped to the caller's own customer_id.
+router.get("/:id", requireClient, async (req, res) => {
+  const { rows } = await pool.query(
+    `SELECT
+        s.*,
+        d.name AS driver_name,
+        v.plate AS vehicle_plate,
+        v.type AS vehicle_type
+     FROM shipments s
+     LEFT JOIN drivers d ON d.id = s.driver_id
+     LEFT JOIN vehicles v ON v.id = d.vehicle_id
+     WHERE s.id = $1 AND s.customer_id = $2`,
+    [req.params.id, req.user.customerId]
+  );
+  if (rows.length === 0) return res.status(404).json({ error: "Shipment not found" });
+
+  const shipment = rows[0];
+  let remainingMiles = null;
+  if (shipment.current_lat && shipment.destination_lat) {
+    remainingMiles = Math.round(
+      haversineMiles(
+        { lat: Number(shipment.current_lat), lng: Number(shipment.current_lng) },
+        { lat: Number(shipment.destination_lat), lng: Number(shipment.destination_lng) }
+      )
+    );
+  }
+
+  res.json({ ...shipment, remaining_miles: remainingMiles });
+});
+
 export default router;

@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
 import Login from "./pages/Login.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import BookingTool from "./pages/BookingTool.jsx";
+import ShipmentDetail from "./pages/ShipmentDetail.jsx";
 
 function isAuthenticated() {
   return Boolean(localStorage.getItem("token"));
@@ -43,6 +44,14 @@ export default function App() {
           element={
             <RequireAuth>
               <BookingTool />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/shipments/:id"
+          element={
+            <RequireAuth>
+              <ShipmentDetail />
             </RequireAuth>
           }
         />

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { apiFetch } from "@shared/api/client.js";
 import StatusBadge from "@shared/components/StatusBadge.jsx";
 
@@ -18,11 +19,15 @@ export default function Dashboard() {
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="space-y-2">
         {shipments.map((s) => (
-          <div key={s.id} className="flex items-center justify-between rounded border p-3 text-sm">
+          <Link
+            key={s.id}
+            to={`/shipments/${s.id}`}
+            className="flex items-center justify-between rounded border p-3 text-sm hover:bg-gray-50"
+          >
             <span>{s.pro_number}</span>
             <span className="text-gray-500">{s.destination_address}</span>
             <StatusBadge status={s.status} />
-          </div>
+          </Link>
         ))}
       </div>
       {shipments.length === 0 && !error && (
