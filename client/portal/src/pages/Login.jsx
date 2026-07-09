@@ -28,7 +28,7 @@ export default function Login() {
       <div className="portal-card w-full max-w-md overflow-hidden">
         <div className="bg-blue-600 px-6 py-8 text-white">
           <div className="flex items-center gap-4 mb-4">
-            <img src="/logo.svg" alt="General Logistics" className="h-16 w-auto flex-shrink-0" />
+            <img src="/logo.png" alt="General Logistics" className="h-16 w-auto flex-shrink-0" />
             <div>
               <p className="text-2xl font-bold">General Logistics</p>
               <p className="text-sm font-semibold text-blue-100">Client Portal</p>

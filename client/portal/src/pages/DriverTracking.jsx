@@ -82,7 +82,7 @@ export default function DriverTracking() {
       <div className="w-full max-w-md rounded-3xl border border-emerald-200 bg-white p-6 shadow-lg shadow-emerald-100/70">
         <div className="mb-5 rounded-2xl bg-emerald-600 p-4 text-white">
           <div className="flex items-center gap-3 mb-3">
-            <img src="/logo.svg" alt="General Logistics" className="h-12 w-auto flex-shrink-0" />
+            <img src="/logo.png" alt="General Logistics" className="h-12 w-auto flex-shrink-0" />
             <div>
               <p className="text-lg font-bold">General Logistics</p>
               <p className="text-xs font-semibold text-emerald-100">Driver Portal</p>
