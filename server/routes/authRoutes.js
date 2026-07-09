@@ -11,25 +11,25 @@ router.post("/login", async (req, res) => {
     return res.status(400).json({ error: "Email and password required" });
   }
 
-  const { rows } = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
-  const user = rows[0];
-  if (!user) return res.status(401).json({ error: "Invalid credentials" });
+  try {
+    const { rows } = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    const user = rows[0];
+    if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
-  const valid = await bcrypt.compare(password, user.password_hash);
-  if (!valid) return res.status(401).json({ error: "Invalid credentials" });
+    const valid = await bcrypt.compare(password, user.password_hash);
+    if (!valid) return res.status(401).json({ error: "Invalid credentials" });
 
-  const token = jwt.sign(
-    {
-      sub: user.id,
-      scope: user.scope, // 'admin' or 'client'
-      role: user.role,
-      customerId: user.customer_id
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || "8h" }
-  );
+    const token = jwt.sign(
+      { sub: user.id, scope: user.scope, role: user.role, customerId: user.customer_id },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || "8h" }
+    );
 
-  res.json({ token, scope: user.scope, role: user.role });
+    res.json({ token, scope: user.scope, role: user.role });
+  } catch (err) {
+    console.error("Login error:", err.message);
+    res.status(500).json({ error: "Server error during login" });
+  }
 });
 
 export default router;
