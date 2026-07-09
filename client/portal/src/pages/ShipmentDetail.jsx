@@ -30,42 +30,45 @@ export default function ShipmentDetail() {
 
   useEffect(() => {
     load();
-    const interval = setInterval(load, 10000); // poll for live position every 10s
+    const interval = setInterval(load, 10000);
     return () => clearInterval(interval);
   }, [id]);
 
   if (error) return <div className="p-8 text-sm text-red-600">{error}</div>;
-  if (!shipment) return <div className="p-8 text-sm text-gray-500">Loading…</div>;
+  if (!shipment) return <div className="p-8 text-sm text-slate-500">Loading…</div>;
 
   const activeStage = stageIndex(shipment.status);
   const hasLivePosition = Boolean(shipment.current_lat);
 
   return (
-    <div className="mx-auto max-w-2xl p-8">
-      <Link to="/dashboard" className="mb-4 inline-block text-sm text-gray-500 hover:text-gray-900">
+    <div className="mx-auto max-w-3xl space-y-6">
+      <Link to="/dashboard" className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700">
         ← Back to shipments
       </Link>
 
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-medium">{shipment.pro_number}</h1>
-          <p className="text-sm text-gray-500">
-            {shipment.origin_address} → {shipment.destination_address}
-          </p>
-        </div>
-      </div>
-
-      {/* Truck / driver card */}
-      <div className="mb-6 rounded-xl border bg-white p-5">
-        <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-xl">
-            🚚
+      <section className="portal-card p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600">Shipment detail</p>
+            <h1 className="mt-2 text-2xl font-semibold text-slate-900">{shipment.pro_number}</h1>
+            <p className="mt-2 text-sm text-slate-500">
+              {shipment.origin_address} → {shipment.destination_address}
+            </p>
           </div>
+          <div className="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">
+            {shipment.status ? shipment.status.replace(/_/g, " ") : "Pending"}
+          </div>
+        </div>
+      </section>
+
+      <section className="portal-card p-6">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-xl">🚚</div>
           <div className="flex-1">
-            <div className="text-sm font-medium">
+            <div className="text-sm font-semibold text-slate-900">
               {shipment.driver_name || "Not yet assigned"}
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-sm text-slate-500">
               {shipment.vehicle_plate
                 ? `Plate ${shipment.vehicle_plate} · ${shipment.vehicle_type || "Truck"}`
                 : "Truck details pending assignment"}
@@ -73,49 +76,47 @@ export default function ShipmentDetail() {
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-3 border-t pt-4">
-          <div className="rounded-lg bg-gray-50 p-3">
-            <div className="text-xs text-gray-500">Current speed</div>
-            <div className="text-lg font-medium">
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <div className="rounded-xl bg-slate-50 p-3">
+            <div className="text-xs uppercase tracking-[0.2em] text-slate-500">Current speed</div>
+            <div className="mt-1 text-lg font-semibold text-slate-900">
               {hasLivePosition ? `${Math.round(shipment.current_speed_mph || 0)} mph` : "—"}
             </div>
           </div>
-          <div className="rounded-lg bg-gray-50 p-3">
-            <div className="text-xs text-gray-500">Distance remaining</div>
-            <div className="text-lg font-medium">
+          <div className="rounded-xl bg-slate-50 p-3">
+            <div className="text-xs uppercase tracking-[0.2em] text-slate-500">Distance remaining</div>
+            <div className="mt-1 text-lg font-semibold text-slate-900">
               {shipment.remaining_miles != null ? `${shipment.remaining_miles} mi` : "—"}
             </div>
           </div>
         </div>
-        {!hasLivePosition && (
-          <p className="mt-3 text-xs text-gray-400">
-            Live position isn't available for this shipment yet.
-          </p>
-        )}
-      </div>
 
-      {/* Milestone tracker */}
-      <div className="rounded-xl border bg-white p-5">
+        {!hasLivePosition && (
+          <p className="mt-3 text-sm text-slate-500">Live position isn't available for this shipment yet.</p>
+        )}
+      </section>
+
+      <section className="portal-card p-6">
         <div className="relative flex items-center">
-          <div className="absolute left-4 right-4 top-[9px] h-0.5 bg-gray-200" />
+          <div className="absolute left-4 right-4 top-[9px] h-0.5 bg-slate-200" />
           <div
-            className="absolute left-4 top-[9px] h-0.5 bg-gray-900 transition-all"
+            className="absolute left-4 top-[9px] h-0.5 bg-blue-600 transition-all"
             style={{ width: `${(activeStage / (STAGES.length - 1)) * 100}%`, maxWidth: "calc(100% - 32px)" }}
           />
           {STAGES.map((stage, i) => (
             <div key={stage.key} className="relative z-10 flex flex-1 flex-col items-center gap-2">
               <div
                 className={`h-[18px] w-[18px] rounded-full border-2 ${
-                  i <= activeStage ? "border-gray-900 bg-gray-900" : "border-gray-300 bg-white"
+                  i <= activeStage ? "border-blue-600 bg-blue-600" : "border-slate-300 bg-white"
                 }`}
               />
-              <div className={`text-xs ${i <= activeStage ? "text-gray-900" : "text-gray-400"}`}>
+              <div className={`text-xs ${i <= activeStage ? "font-medium text-slate-900" : "text-slate-400"}`}>
                 {stage.label}
               </div>
             </div>
           ))}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

@@ -38,29 +38,30 @@ export default function Register() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-96 rounded-lg border bg-white p-6">
-        <div className="mb-6 flex gap-1">
+    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.22),_transparent_42%),linear-gradient(135deg,_#f8fbff_0%,_#eef6ff_100%)] px-4 py-10">
+      <div className="portal-card w-full max-w-md p-6">
+        <div className="mb-6 flex gap-2">
           {[1, 2, 3].map((s) => (
-            <div key={s} className={`h-1 flex-1 rounded ${s <= step ? "bg-gray-900" : "bg-gray-200"}`} />
+            <div key={s} className={`h-1.5 flex-1 rounded-full ${s <= step ? "bg-blue-600" : "bg-slate-200"}`} />
           ))}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {step === 1 && (
             <>
-              <h1 className="text-lg font-medium">Company info</h1>
+              <h1 className="text-xl font-semibold text-slate-900">Company info</h1>
+              <p className="text-sm text-slate-500">Tell us who you are so we can tailor your account.</p>
               <input
                 required
                 placeholder="Company name"
-                className="w-full rounded border px-3 py-2 text-sm"
+                className="portal-input"
                 value={form.companyName}
                 onChange={(e) => update("companyName", e.target.value)}
               />
               <button
                 type="button"
                 onClick={() => form.companyName && setStep(2)}
-                className="w-full rounded bg-gray-900 py-2 text-sm text-white"
+                className="portal-button w-full"
               >
                 Continue
               </button>
@@ -69,24 +70,25 @@ export default function Register() {
 
           {step === 2 && (
             <>
-              <h1 className="text-lg font-medium">Billing details</h1>
+              <h1 className="text-xl font-semibold text-slate-900">Billing details</h1>
+              <p className="text-sm text-slate-500">Add your tax ID and billing address for faster invoicing.</p>
               <input
                 placeholder="Tax ID / EIN"
-                className="w-full rounded border px-3 py-2 text-sm"
+                className="portal-input"
                 value={form.taxId}
                 onChange={(e) => update("taxId", e.target.value)}
               />
               <input
                 placeholder="Billing address"
-                className="w-full rounded border px-3 py-2 text-sm"
+                className="portal-input"
                 value={form.billingAddress}
                 onChange={(e) => update("billingAddress", e.target.value)}
               />
               <div className="flex gap-2">
-                <button type="button" onClick={() => setStep(1)} className="flex-1 rounded border py-2 text-sm">
+                <button type="button" onClick={() => setStep(1)} className="portal-button-secondary flex-1">
                   Back
                 </button>
-                <button type="button" onClick={() => setStep(3)} className="flex-1 rounded bg-gray-900 py-2 text-sm text-white">
+                <button type="button" onClick={() => setStep(3)} className="portal-button flex-1">
                   Continue
                 </button>
               </div>
@@ -95,12 +97,13 @@ export default function Register() {
 
           {step === 3 && (
             <>
-              <h1 className="text-lg font-medium">Create your login</h1>
+              <h1 className="text-xl font-semibold text-slate-900">Create your login</h1>
+              <p className="text-sm text-slate-500">Set your sign-in details to access the portal.</p>
               <input
                 required
                 type="email"
                 placeholder="Email"
-                className="w-full rounded border px-3 py-2 text-sm"
+                className="portal-input"
                 value={form.email}
                 onChange={(e) => update("email", e.target.value)}
               />
@@ -108,19 +111,19 @@ export default function Register() {
                 required
                 type="password"
                 placeholder="Password"
-                className="w-full rounded border px-3 py-2 text-sm"
+                className="portal-input"
                 value={form.password}
                 onChange={(e) => update("password", e.target.value)}
               />
               {error && <p className="text-sm text-red-600">{error}</p>}
               <div className="flex gap-2">
-                <button type="button" onClick={() => setStep(2)} className="flex-1 rounded border py-2 text-sm">
+                <button type="button" onClick={() => setStep(2)} className="portal-button-secondary flex-1">
                   Back
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 rounded bg-gray-900 py-2 text-sm text-white disabled:opacity-50"
+                  className="portal-button flex-1 disabled:opacity-50"
                 >
                   {submitting ? "Creating…" : "Create account"}
                 </button>
@@ -129,8 +132,8 @@ export default function Register() {
           )}
         </form>
 
-        <p className="mt-4 text-center text-xs text-gray-500">
-          Already have an account? <Link to="/login" className="text-gray-900 underline">Sign in</Link>
+        <p className="mt-4 text-center text-sm text-slate-500">
+          Already have an account? <Link to="/login" className="font-medium text-blue-600">Sign in</Link>
         </p>
       </div>
     </div>

@@ -62,112 +62,108 @@ export default function BookingTool() {
   }
 
   return (
-    <div className="mx-auto max-w-lg p-8">
-      <h1 className="mb-4 text-xl font-medium">Book a shipment</h1>
+    <div className="mx-auto max-w-3xl space-y-6">
+      <section className="portal-card overflow-hidden bg-gradient-to-r from-blue-600 to-sky-600 p-6 text-white">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-100">New booking</p>
+        <h1 className="mt-2 text-2xl font-semibold">Plan the next shipment in minutes.</h1>
+        <p className="mt-2 text-sm text-blue-100">Add pickup and delivery details, then get an instant quote before confirming the load.</p>
+      </section>
 
-      <div className="space-y-4">
-        <div>
-          <label className="mb-1 block text-sm text-gray-600">Pickup address</label>
-          <input
-            className="w-full rounded border px-3 py-2 text-sm"
-            value={originAddress}
-            onChange={(e) => setOriginAddress(e.target.value)}
-            placeholder="Street, City, State"
-          />
+      <div className="portal-card p-6">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Pickup address</label>
+            <input
+              className="portal-input"
+              value={originAddress}
+              onChange={(e) => setOriginAddress(e.target.value)}
+              placeholder="Street, City, State"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Delivery address</label>
+            <input
+              className="portal-input"
+              value={destinationAddress}
+              onChange={(e) => setDestinationAddress(e.target.value)}
+              placeholder="Street, City, State"
+            />
+          </div>
         </div>
 
-        <div>
-          <label className="mb-1 block text-sm text-gray-600">Delivery address</label>
-          <input
-            className="w-full rounded border px-3 py-2 text-sm"
-            value={destinationAddress}
-            onChange={(e) => setDestinationAddress(e.target.value)}
-            placeholder="Street, City, State"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm text-gray-600">Pickup date</label>
+        <div className="mt-4">
+          <label className="mb-1 block text-sm font-medium text-slate-700">Pickup date</label>
           <input
             type="date"
-            className="w-full rounded border px-3 py-2 text-sm"
+            className="portal-input"
             value={pickupDate}
             onChange={(e) => setPickupDate(e.target.value)}
           />
         </div>
 
-        <div>
-          <label className="mb-2 block text-sm text-gray-600">Handling units</label>
+        <div className="mt-6">
+          <div className="mb-2 flex items-center justify-between">
+            <label className="text-sm font-medium text-slate-700">Handling units</label>
+            <span className="text-sm text-slate-500">{totalWeight || 0} lbs</span>
+          </div>
           <div className="space-y-2">
             {units.map((u) => (
-              <div key={u.id} className="flex items-center gap-2 rounded border p-2 text-sm">
-                <span className="flex-1 capitalize">{u.type}</span>
+              <div key={u.id} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm">
+                <span className="flex-1 capitalize text-slate-700">{u.type}</span>
                 <input
                   type="number"
                   placeholder="lbs"
-                  className="w-24 rounded border px-2 py-1 text-sm"
+                  className="w-24 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm"
                   value={u.weight}
                   onChange={(e) => updateUnitWeight(u.id, e.target.value)}
                 />
-                <button
-                  type="button"
-                  onClick={() => removeUnit(u.id)}
-                  className="text-xs text-gray-400 hover:text-red-500"
-                >
+                <button type="button" onClick={() => removeUnit(u.id)} className="text-xs font-medium text-slate-400 hover:text-red-500">
                   Remove
                 </button>
               </div>
             ))}
           </div>
-          <div className="mt-2 flex gap-2">
-            <button
-              type="button"
-              onClick={() => addUnit("pallet")}
-              className="flex-1 rounded border px-3 py-2 text-sm"
-            >
+          <div className="mt-3 flex gap-2">
+            <button type="button" onClick={() => addUnit("pallet")} className="portal-button-secondary flex-1">
               + Add Pallet
             </button>
-            <button
-              type="button"
-              onClick={() => addUnit("box")}
-              className="flex-1 rounded border px-3 py-2 text-sm"
-            >
+            <button type="button" onClick={() => addUnit("box")} className="portal-button-secondary flex-1">
               + Add Box
             </button>
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={getQuote}
-          className="w-full rounded border px-3 py-2 text-sm"
-        >
-          Get instant quote
-        </button>
+        <div className="mt-6 flex flex-col gap-3 md:flex-row">
+          <button type="button" onClick={getQuote} className="portal-button-secondary flex-1">
+            Get instant quote
+          </button>
+          <button
+            type="button"
+            onClick={handleBook}
+            disabled={submitting || !originAddress || !destinationAddress}
+            className="portal-button flex-1 disabled:opacity-50"
+          >
+            {submitting ? "Booking…" : "Book now"}
+          </button>
+        </div>
 
         {quote && (
-          <div className="rounded bg-green-50 p-3 text-sm text-green-800">
+          <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
             {quote.estimated ? (
-              <>Estimated price · {quote.miles} mi at $2.50/mi — <strong>${quote.price}</strong></>
+              <>
+                Estimated price · {quote.miles} mi at $2.50/mi — <strong>${quote.price}</strong>
+              </>
             ) : (
               <>
                 Placeholder estimate — <strong>${quote.price}</strong>
-                <div className="mt-1 text-xs text-green-700">{quote.note}</div>
+                <div className="mt-1 text-xs text-emerald-700">{quote.note}</div>
               </>
             )}
           </div>
         )}
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
-
-        <button
-          type="button"
-          onClick={handleBook}
-          disabled={submitting || !originAddress || !destinationAddress}
-          className="w-full rounded bg-gray-900 py-2 text-sm text-white disabled:opacity-50"
-        >
-          {submitting ? "Booking…" : "Book now"}
-        </button>
+        {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
       </div>
     </div>
   );
