@@ -1,8 +1,11 @@
 import { Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
 import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import BookingTool from "./pages/BookingTool.jsx";
 import ShipmentDetail from "./pages/ShipmentDetail.jsx";
+import Invoices from "./pages/Invoices.jsx";
+import DriverTracking from "./pages/DriverTracking.jsx";
 
 function isAuthenticated() {
   return Boolean(localStorage.getItem("token"));
@@ -14,13 +17,15 @@ function RequireAuth({ children }) {
 
 function NavBar() {
   const location = useLocation();
-  if (location.pathname === "/login") return null;
+  const hideOn = ["/login", "/register"];
+  if (hideOn.includes(location.pathname) || location.pathname.startsWith("/driver/")) return null;
   const linkClass = (path) =>
     `text-sm ${location.pathname === path ? "font-medium text-gray-900" : "text-gray-500"}`;
   return (
     <div className="flex gap-6 border-b bg-white px-8 py-3">
       <Link to="/dashboard" className={linkClass("/dashboard")}>Shipments</Link>
       <Link to="/book" className={linkClass("/book")}>Book a shipment</Link>
+      <Link to="/invoices" className={linkClass("/invoices")}>Invoices</Link>
     </div>
   );
 }
@@ -31,6 +36,8 @@ export default function App() {
       <NavBar />
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/driver/:token" element={<DriverTracking />} />
         <Route
           path="/dashboard"
           element={
@@ -52,6 +59,14 @@ export default function App() {
           element={
             <RequireAuth>
               <ShipmentDetail />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/invoices"
+          element={
+            <RequireAuth>
+              <Invoices />
             </RequireAuth>
           }
         />

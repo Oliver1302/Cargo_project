@@ -1,4 +1,5 @@
 import { Router } from "express";
+import crypto from "crypto";
 import { pool } from "../db/pool.js";
 import { requireClient } from "../middleware/auth.js";
 import { geocodeAddress, haversineMiles } from "../services/geocode.js";
@@ -51,6 +52,7 @@ router.post("/", requireClient, async (req, res) => {
   }
 
   const proNumber = `PRO-${Math.floor(10000 + Math.random() * 89999)}`;
+  const trackingToken = crypto.randomUUID();
   const [origin, destination] = await Promise.all([
     geocodeAddress(originAddress),
     geocodeAddress(destinationAddress)
@@ -60,8 +62,8 @@ router.post("/", requireClient, async (req, res) => {
     const { rows } = await pool.query(
       `INSERT INTO shipments
         (pro_number, customer_id, status, origin_address, destination_address, weight_lbs, pickup_date,
-         origin_lat, origin_lng, destination_lat, destination_lng)
-       VALUES ($1, $2, 'pending', $3, $4, $5, $6, $7, $8, $9, $10)
+         origin_lat, origin_lng, destination_lat, destination_lng, driver_tracking_token)
+       VALUES ($1, $2, 'pending', $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
       [
         proNumber,
@@ -73,7 +75,8 @@ router.post("/", requireClient, async (req, res) => {
         origin?.lat || null,
         origin?.lng || null,
         destination?.lat || null,
-        destination?.lng || null
+        destination?.lng || null,
+        trackingToken
       ]
     );
     res.status(201).json(rows[0]);

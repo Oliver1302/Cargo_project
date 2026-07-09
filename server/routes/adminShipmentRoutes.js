@@ -1,7 +1,8 @@
 import { Router } from "express";
+import crypto from "crypto";
 import { pool } from "../db/pool.js";
 import { requireAdminRole } from "../middleware/auth.js";
-import { geocodeAddress } from "../services/geocode.js";
+import { geocodeAddress, haversineMiles } from "../services/geocode.js";
 
 const router = Router();
 
@@ -21,6 +22,7 @@ router.post("/", requireAdminRole("super_admin", "dispatcher"), async (req, res)
   }
 
   const proNumber = `PRO-${Math.floor(10000 + Math.random() * 89999)}`;
+  const trackingToken = crypto.randomUUID();
 
   // Geocoding is optional — if no Google Maps key is set yet, these just come back null
   // and the shipment is still created; the map page will simply skip un-geocoded rows.
@@ -33,8 +35,8 @@ router.post("/", requireAdminRole("super_admin", "dispatcher"), async (req, res)
     const { rows } = await pool.query(
       `INSERT INTO shipments
         (pro_number, customer_id, status, origin_address, destination_address, weight_lbs, pickup_date,
-         origin_lat, origin_lng, destination_lat, destination_lng)
-       VALUES ($1, $2, 'pending', $3, $4, $5, $6, $7, $8, $9, $10)
+         origin_lat, origin_lng, destination_lat, destination_lng, driver_tracking_token)
+       VALUES ($1, $2, 'pending', $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
       [
         proNumber,
@@ -46,7 +48,8 @@ router.post("/", requireAdminRole("super_admin", "dispatcher"), async (req, res)
         origin?.lat || null,
         origin?.lng || null,
         destination?.lat || null,
-        destination?.lng || null
+        destination?.lng || null,
+        trackingToken
       ]
     );
     res.status(201).json(rows[0]);
@@ -122,6 +125,58 @@ router.patch("/:id/location", requireAdminRole("super_admin", "dispatcher"), asy
   } catch (err) {
     console.error("Location update error:", err.message);
     res.status(500).json({ error: "Failed to update location" });
+  }
+});
+
+// Mark a shipment delivered and auto-generate its invoice — the billing trigger from the plan.
+router.patch("/:id/deliver", requireAdminRole("super_admin", "dispatcher"), async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    const shipmentResult = await client.query(
+      "UPDATE shipments SET status = 'delivered' WHERE id = $1 RETURNING *",
+      [req.params.id]
+    );
+    const shipment = shipmentResult.rows[0];
+    if (!shipment) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "Shipment not found" });
+    }
+
+    if (shipment.driver_id) {
+      await client.query("UPDATE drivers SET status = 'available' WHERE id = $1", [shipment.driver_id]);
+    }
+
+    // Rate formula from the plan: base rate + (distance x fuel surcharge) + accessorial fees.
+    // Falls back to a flat estimated distance when addresses haven't been geocoded yet.
+    const BASE_RATE = 150;
+    const FUEL_SURCHARGE_PER_MILE = 0.6;
+    const ACCESSORIAL_FEES = 25;
+    const FALLBACK_MILES = 300;
+    const miles =
+      shipment.origin_lat && shipment.destination_lat
+        ? haversineMiles(
+            { lat: Number(shipment.origin_lat), lng: Number(shipment.origin_lng) },
+            { lat: Number(shipment.destination_lat), lng: Number(shipment.destination_lng) }
+          )
+        : FALLBACK_MILES;
+    const amount = BASE_RATE + miles * FUEL_SURCHARGE_PER_MILE + ACCESSORIAL_FEES;
+
+    const invoiceResult = await client.query(
+      `INSERT INTO invoices (shipment_id, customer_id, amount, status)
+       VALUES ($1, $2, $3, 'unpaid') RETURNING *`,
+      [shipment.id, shipment.customer_id, amount]
+    );
+
+    await client.query("COMMIT");
+    res.json({ shipment, invoice: invoiceResult.rows[0] });
+  } catch (err) {
+    await client.query("ROLLBACK");
+    console.error("Deliver shipment error:", err.message);
+    res.status(500).json({ error: "Failed to mark shipment delivered" });
+  } finally {
+    client.release();
   }
 });
 
