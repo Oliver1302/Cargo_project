@@ -24,28 +24,41 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <form onSubmit={handleSubmit} className="w-80 space-y-4 rounded-lg border bg-white p-6">
-        <h1 className="text-lg font-medium">Admin sign in</h1>
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full rounded border px-3 py-2 text-sm"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full rounded border px-3 py-2 text-sm"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <button type="submit" className="w-full rounded bg-gray-900 py-2 text-sm text-white">
-          Sign in
-        </button>
-      </form>
+    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top_left,_rgba(244,63,94,0.16),_transparent_42%),linear-gradient(135deg,_#fff7f8_0%,_#fff1f2_100%)] px-4 py-10">
+      <div className="admin-card w-full max-w-md overflow-hidden">
+        <div className="bg-rose-600 px-6 py-8 text-white">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-rose-100">Admin console</p>
+          <h1 className="mt-2 text-2xl font-semibold">Sign in to run operations</h1>
+          <p className="mt-2 text-sm text-rose-100">Dispatch loads, track shipments, and keep every move visible.</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4 p-6">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Email</label>
+            <input
+              type="email"
+              placeholder="ops@company.com"
+              className="admin-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Password</label>
+            <input
+              type="password"
+              placeholder="Enter your password"
+              className="admin-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <button type="submit" className="admin-button w-full">
+            Sign in
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

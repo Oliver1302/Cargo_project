@@ -65,58 +65,58 @@ export default function DriverTracking() {
   useEffect(() => () => intervalRef.current && clearInterval(intervalRef.current), []);
 
   if (error) return <div className="flex min-h-screen items-center justify-center p-6 text-center text-sm text-red-600">{error}</div>;
-  if (!shipment) return <div className="flex min-h-screen items-center justify-center text-sm text-gray-500">Loading…</div>;
+  if (!shipment) return <div className="flex min-h-screen items-center justify-center text-sm text-slate-500">Loading…</div>;
 
   if (delivered) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-2 p-6 text-center">
-        <div className="text-3xl">✅</div>
-        <div className="text-lg font-medium">Marked as delivered</div>
-        <div className="text-sm text-gray-500">Thanks — you can close this page.</div>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 p-6 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-3xl">✅</div>
+        <div className="text-xl font-semibold text-slate-900">Marked as delivered</div>
+        <div className="text-sm text-slate-500">Thanks — you can close this page.</div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-between p-6">
-      <div>
-        <div className="mb-1 text-sm text-gray-500">{shipment.pro_number}</div>
-        <h1 className="mb-6 text-lg font-medium">{shipment.origin_address} → {shipment.destination_address}</h1>
+    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.18),_transparent_40%),linear-gradient(135deg,_#f6fff9_0%,_#ecfdf5_100%)] px-4 py-6">
+      <div className="w-full max-w-md rounded-3xl border border-emerald-200 bg-white p-6 shadow-lg shadow-emerald-100/70">
+        <div className="mb-5 rounded-2xl bg-emerald-600 p-4 text-white">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-100">Driver portal</p>
+          <h1 className="mt-2 text-xl font-semibold">Route and delivery control</h1>
+        </div>
 
-        <div className="rounded-xl border p-4 text-sm">
-          <div className="mb-2 flex justify-between">
-            <span className="text-gray-500">Status</span>
-            <span className="capitalize">{shipment.status.replace("_", " ")}</span>
+        <div className="mb-5 text-sm text-slate-500">{shipment.pro_number}</div>
+        <h2 className="mb-5 text-lg font-semibold text-slate-900">
+          {shipment.origin_address} → {shipment.destination_address}
+        </h2>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-slate-500">Status</span>
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold capitalize text-emerald-700">
+              {shipment.status ? shipment.status.replace("_", " ") : "Pending"}
+            </span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-gray-500">Sharing location</span>
-            <span>{routeActive ? "Active" : "Off"}</span>
+          <div className="flex items-center justify-between">
+            <span className="text-slate-500">Sharing location</span>
+            <span className="font-medium text-slate-900">{routeActive ? "Active" : "Off"}</span>
           </div>
         </div>
-      </div>
 
-      <div className="space-y-3 pb-6">
-        {!routeActive ? (
-          <button
-            onClick={startRoute}
-            className="w-full rounded-xl bg-gray-900 py-4 text-base font-medium text-white"
-          >
-            Start route
+        <div className="mt-6 space-y-3">
+          {!routeActive ? (
+            <button onClick={startRoute} className="w-full rounded-2xl bg-emerald-600 py-3.5 text-base font-semibold text-white transition hover:bg-emerald-700">
+              Start route
+            </button>
+          ) : (
+            <button onClick={stopRoute} className="w-full rounded-2xl border border-slate-200 bg-white py-3.5 text-base font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-700">
+              Pause sharing location
+            </button>
+          )}
+          <button onClick={markDelivered} className="w-full rounded-2xl border border-emerald-600 py-3.5 text-base font-semibold text-emerald-700 transition hover:bg-emerald-50">
+            Mark as delivered
           </button>
-        ) : (
-          <button
-            onClick={stopRoute}
-            className="w-full rounded-xl border py-4 text-base font-medium"
-          >
-            Pause sharing location
-          </button>
-        )}
-        <button
-          onClick={markDelivered}
-          className="w-full rounded-xl border border-green-600 py-4 text-base font-medium text-green-700"
-        >
-          Mark as delivered
-        </button>
+        </div>
       </div>
     </div>
   );

@@ -43,14 +43,19 @@ export default function NewShipment() {
   }
 
   return (
-    <div className="mx-auto max-w-lg p-8">
-      <h1 className="mb-4 text-xl font-medium">New shipment</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="mx-auto max-w-2xl space-y-6">
+      <section className="admin-card p-6">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-rose-600">New shipment</p>
+        <h1 className="mt-2 text-2xl font-semibold text-slate-900">Create a freight order in seconds.</h1>
+        <p className="mt-2 text-sm text-slate-500">Capture the essentials and launch the next load from the operational hub.</p>
+      </section>
+
+      <form onSubmit={handleSubmit} className="admin-card space-y-4 p-6">
         <div>
-          <label className="mb-1 block text-sm text-gray-600">Customer</label>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Customer</label>
           <select
             required
-            className="w-full rounded border px-3 py-2 text-sm"
+            className="admin-input"
             value={form.customerId}
             onChange={(e) => update("customerId", e.target.value)}
           >
@@ -64,40 +69,40 @@ export default function NewShipment() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm text-gray-600">Origin address</label>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Origin address</label>
           <input
             required
-            className="w-full rounded border px-3 py-2 text-sm"
+            className="admin-input"
             value={form.originAddress}
             onChange={(e) => update("originAddress", e.target.value)}
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm text-gray-600">Destination address</label>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Destination address</label>
           <input
             required
-            className="w-full rounded border px-3 py-2 text-sm"
+            className="admin-input"
             value={form.destinationAddress}
             onChange={(e) => update("destinationAddress", e.target.value)}
           />
         </div>
 
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <label className="mb-1 block text-sm text-gray-600">Weight (lbs)</label>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Weight (lbs)</label>
             <input
               type="number"
-              className="w-full rounded border px-3 py-2 text-sm"
+              className="admin-input"
               value={form.weightLbs}
               onChange={(e) => update("weightLbs", e.target.value)}
             />
           </div>
-          <div className="flex-1">
-            <label className="mb-1 block text-sm text-gray-600">Pickup date</label>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Pickup date</label>
             <input
               type="date"
-              className="w-full rounded border px-3 py-2 text-sm"
+              className="admin-input"
               value={form.pickupDate}
               onChange={(e) => update("pickupDate", e.target.value)}
             />
@@ -106,11 +111,7 @@ export default function NewShipment() {
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full rounded bg-gray-900 py-2 text-sm text-white disabled:opacity-50"
-        >
+        <button type="submit" disabled={submitting} className="admin-button w-full disabled:opacity-50">
           {submitting ? "Creating…" : "Create shipment"}
         </button>
       </form>

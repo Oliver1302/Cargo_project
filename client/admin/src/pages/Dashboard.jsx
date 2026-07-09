@@ -30,54 +30,98 @@ export default function Dashboard() {
     navigator.clipboard.writeText(`${portalBase}/driver/${token}`);
   }
 
+  const activeCount = shipments.filter((s) => !["delivered", "canceled"].includes(s.status)).length;
+  const deliveredCount = shipments.filter((s) => s.status === "delivered").length;
+
   return (
-    <div className="p-8">
-      <h1 className="mb-4 text-xl font-medium">Shipments</h1>
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b text-left text-gray-500">
-            <th className="py-2">Pro #</th>
-            <th>Origin</th>
-            <th>Destination</th>
-            <th>Status</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {shipments.map((s) => (
-            <tr key={s.id} className="border-b">
-              <td className="py-2">{s.pro_number}</td>
-              <td>{s.origin_address}</td>
-              <td>{s.destination_address}</td>
-              <td>
-                <StatusBadge status={s.status} />
-              </td>
-              <td className="space-x-2 text-right">
-                {s.driver_tracking_token && (
-                  <button
-                    onClick={() => copyDriverLink(s.driver_tracking_token)}
-                    className="rounded border px-2 py-1 text-xs hover:bg-gray-50"
-                  >
-                    Copy driver link
-                  </button>
-                )}
-                {s.status === "in_transit" && (
-                  <button
-                    onClick={() => deliver(s.id)}
-                    className="rounded border border-green-600 px-2 py-1 text-xs text-green-700 hover:bg-green-50"
-                  >
-                    Mark delivered
-                  </button>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {shipments.length === 0 && !error && (
-        <p className="mt-4 text-sm text-gray-500">No shipments yet.</p>
-      )}
+    <div className="space-y-6">
+      <section className="admin-card overflow-hidden bg-gradient-to-r from-rose-600 via-rose-700 to-red-500 p-6 text-white">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-rose-100">Ops overview</p>
+            <h1 className="mt-2 text-2xl font-semibold">Keep every shipment moving with confidence.</h1>
+            <p className="mt-2 max-w-2xl text-sm text-rose-100">Monitor active freight, distribute loads, and close deliveries from one control center.</p>
+          </div>
+          <div className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3 backdrop-blur">
+            <p className="text-sm text-rose-100">Live fleet pulse</p>
+            <p className="text-2xl font-semibold">{activeCount}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-2">
+        <div className="admin-card p-4">
+          <p className="text-sm text-slate-500">Active loads</p>
+          <p className="mt-2 text-3xl font-semibold text-slate-900">{activeCount}</p>
+        </div>
+        <div className="admin-card p-4">
+          <p className="text-sm text-slate-500">Delivered</p>
+          <p className="mt-2 text-3xl font-semibold text-slate-900">{deliveredCount}</p>
+        </div>
+      </section>
+
+      <section className="admin-card p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">Shipment queue</h2>
+            <p className="text-sm text-slate-500">Review shipments, share driver links, and close deliveries quickly.</p>
+          </div>
+        </div>
+
+        {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
+
+        <div className="overflow-hidden rounded-xl border border-slate-200">
+          <table className="min-w-full text-sm">
+            <thead className="bg-slate-50 text-left text-slate-500">
+              <tr>
+                <th className="px-4 py-3">Pro #</th>
+                <th className="px-4 py-3">Origin</th>
+                <th className="px-4 py-3">Destination</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {shipments.map((s) => (
+                <tr key={s.id} className="border-t border-slate-200 bg-white">
+                  <td className="px-4 py-3 font-medium text-slate-900">{s.pro_number}</td>
+                  <td className="px-4 py-3 text-slate-600">{s.origin_address}</td>
+                  <td className="px-4 py-3 text-slate-600">{s.destination_address}</td>
+                  <td className="px-4 py-3">
+                    <StatusBadge status={s.status} />
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex flex-wrap justify-end gap-2">
+                      {s.driver_tracking_token && (
+                        <button
+                          onClick={() => copyDriverLink(s.driver_tracking_token)}
+                          className="admin-button-secondary px-3 py-1.5 text-xs"
+                        >
+                          Copy driver link
+                        </button>
+                      )}
+                      {s.status === "in_transit" && (
+                        <button
+                          onClick={() => deliver(s.id)}
+                          className="rounded-lg border border-emerald-600 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                        >
+                          Mark delivered
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {shipments.length === 0 && !error && (
+          <div className="mt-4 rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
+            No shipments yet.
+          </div>
+        )}
+      </section>
     </div>
   );
 }

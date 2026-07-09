@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
 import Login from "./pages/Login.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import DispatchBoard from "./pages/DispatchBoard.jsx";
@@ -15,59 +15,93 @@ function RequireAuth({ children }) {
 
 function NavBar() {
   const location = useLocation();
+  const navigate = useNavigate();
   if (location.pathname === "/login") return null;
+
   const linkClass = (path) =>
-    `text-sm ${location.pathname === path ? "font-medium text-gray-900" : "text-gray-500"}`;
+    `rounded-full px-3 py-2 text-sm font-medium transition ${
+      location.pathname === path
+        ? "bg-rose-600 text-white shadow-sm"
+        : "text-slate-600 hover:bg-rose-50 hover:text-rose-700"
+    }`;
+
+  function handleLogout() {
+    localStorage.removeItem("token");
+    navigate("/login");
+  }
+
   return (
-    <div className="flex gap-6 border-b bg-white px-8 py-3">
-      <Link to="/dashboard" className={linkClass("/dashboard")}>Shipments</Link>
-      <Link to="/dispatch" className={linkClass("/dispatch")}>Dispatch</Link>
-      <Link to="/new-shipment" className={linkClass("/new-shipment")}>New Shipment</Link>
-      <Link to="/map" className={linkClass("/map")}>Map</Link>
-    </div>
+    <header className="border-b border-rose-200 bg-white/90 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-600 text-sm font-semibold text-white">
+            AL
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Admin Command Center</p>
+            <p className="text-xs text-slate-500">Operations control</p>
+          </div>
+        </div>
+        <nav className="flex flex-wrap items-center gap-2">
+          <Link to="/dashboard" className={linkClass("/dashboard")}>Shipments</Link>
+          <Link to="/dispatch" className={linkClass("/dispatch")}>Dispatch</Link>
+          <Link to="/new-shipment" className={linkClass("/new-shipment")}>New Shipment</Link>
+          <Link to="/map" className={linkClass("/map")}>Map</Link>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="rounded-full border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-rose-200 hover:text-rose-700"
+          >
+            Sign out
+          </button>
+        </nav>
+      </div>
+    </header>
   );
 }
 
 export default function App() {
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-slate-50 text-slate-900">
       <NavBar />
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/dashboard"
-          element={
-            <RequireAuth>
-              <Dashboard />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/dispatch"
-          element={
-            <RequireAuth>
-              <DispatchBoard />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/new-shipment"
-          element={
-            <RequireAuth>
-              <NewShipment />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/map"
-          element={
-            <RequireAuth>
-              <LiveMap />
-            </RequireAuth>
-          }
-        />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </>
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/dashboard"
+            element={
+              <RequireAuth>
+                <Dashboard />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/dispatch"
+            element={
+              <RequireAuth>
+                <DispatchBoard />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/new-shipment"
+            element={
+              <RequireAuth>
+                <NewShipment />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/map"
+            element={
+              <RequireAuth>
+                <LiveMap />
+              </RequireAuth>
+            }
+          />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </div>
+    </div>
   );
 }
