@@ -7,6 +7,7 @@ import { Server } from "socket.io";
 import authRoutes from "./routes/authRoutes.js";
 import adminShipmentRoutes from "./routes/adminShipmentRoutes.js";
 import adminDriverRoutes from "./routes/adminDriverRoutes.js";
+import adminCustomerRoutes from "./routes/adminCustomerRoutes.js";
 import portalShipmentRoutes from "./routes/portalShipmentRoutes.js";
 import { requireAuth } from "./middleware/auth.js";
 
@@ -26,6 +27,7 @@ app.get("/health", (req, res) => res.json({ ok: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/admin/shipments", requireAuth, adminShipmentRoutes);
 app.use("/api/admin/drivers", requireAuth, adminDriverRoutes);
+app.use("/api/admin/customers", requireAuth, adminCustomerRoutes);
 app.use("/api/portal/shipments", requireAuth, portalShipmentRoutes);
 
 // Phase 4: driver location updates come in here and get broadcast to subscribed clients.

@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { pool } from "../db/pool.js";
 import { requireClient } from "../middleware/auth.js";
+import { geocodeAddress, haversineMiles } from "../services/geocode.js";
+
+const RATE_PER_MILE = 2.5;
+const FALLBACK_ESTIMATE = 450; // used only when no Maps key is configured yet
 
 const router = Router();
 
@@ -11,6 +15,72 @@ router.get("/", requireClient, async (req, res) => {
     [req.user.customerId]
   );
   res.json(rows);
+});
+
+// Instant quote estimate for the booking tool. Falls back to a flat estimate if no
+// Google Maps API key is set yet — replace with a real quote once GOOGLE_MAPS_API_KEY exists.
+router.post("/quote", requireClient, async (req, res) => {
+  const { originAddress, destinationAddress } = req.body;
+  if (!originAddress || !destinationAddress) {
+    return res.status(400).json({ error: "originAddress and destinationAddress are required" });
+  }
+
+  const [origin, destination] = await Promise.all([
+    geocodeAddress(originAddress),
+    geocodeAddress(destinationAddress)
+  ]);
+
+  if (!origin || !destination) {
+    return res.json({
+      estimated: false,
+      price: FALLBACK_ESTIMATE,
+      note: "Estimate is a placeholder — add GOOGLE_MAPS_API_KEY on the server for a real distance-based quote."
+    });
+  }
+
+  const miles = haversineMiles(origin, destination);
+  const price = Math.round(miles * RATE_PER_MILE);
+  res.json({ estimated: true, miles: Math.round(miles), price });
+});
+
+// Create a new shipment from the client's booking tool — always scoped to their own customer_id.
+router.post("/", requireClient, async (req, res) => {
+  const { originAddress, destinationAddress, weightLbs, pickupDate } = req.body;
+  if (!originAddress || !destinationAddress) {
+    return res.status(400).json({ error: "originAddress and destinationAddress are required" });
+  }
+
+  const proNumber = `PRO-${Math.floor(10000 + Math.random() * 89999)}`;
+  const [origin, destination] = await Promise.all([
+    geocodeAddress(originAddress),
+    geocodeAddress(destinationAddress)
+  ]);
+
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO shipments
+        (pro_number, customer_id, status, origin_address, destination_address, weight_lbs, pickup_date,
+         origin_lat, origin_lng, destination_lat, destination_lng)
+       VALUES ($1, $2, 'pending', $3, $4, $5, $6, $7, $8, $9, $10)
+       RETURNING *`,
+      [
+        proNumber,
+        req.user.customerId,
+        originAddress,
+        destinationAddress,
+        weightLbs || null,
+        pickupDate || null,
+        origin?.lat || null,
+        origin?.lng || null,
+        destination?.lat || null,
+        destination?.lng || null
+      ]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error("Create portal shipment error:", err.message);
+    res.status(500).json({ error: "Failed to create shipment" });
+  }
 });
 
 export default router;
