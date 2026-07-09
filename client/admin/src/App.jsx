@@ -32,15 +32,9 @@ function NavBar() {
 
   return (
     <header className="border-b border-rose-200 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-600 text-sm font-semibold text-white">
-            AL
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-slate-900">Admin Command Center</p>
-            <p className="text-xs text-slate-500">Operations control</p>
-          </div>
+          <img src="/logo.svg" alt="General Logistics" className="h-12 w-auto" />
         </div>
         <nav className="flex flex-wrap items-center gap-2">
           <Link to="/dashboard" className={linkClass("/dashboard")}>Shipments</Link>

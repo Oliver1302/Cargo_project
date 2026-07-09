@@ -27,6 +27,7 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.22),_transparent_42%),linear-gradient(135deg,_#f8fbff_0%,_#eef6ff_100%)] px-4 py-10">
       <div className="portal-card w-full max-w-md overflow-hidden">
         <div className="bg-blue-600 px-6 py-8 text-white">
+          <img src="/logo.svg" alt="General Logistics" className="mx-auto mb-4 h-16 w-auto" />
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-100">Client portal</p>
           <h1 className="mt-2 text-2xl font-semibold">Sign in to manage your freight</h1>
           <p className="mt-2 text-sm text-blue-100">View shipments, invoices, and booking updates in one place.</p>
