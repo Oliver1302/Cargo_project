@@ -33,8 +33,9 @@ function NavBar() {
   return (
     <header className="border-b border-rose-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <img src="/logo.svg" alt="General Logistics" className="h-12 w-auto" />
+          <span className="hidden text-sm font-semibold text-slate-900 sm:inline">Administrative Control</span>
         </div>
         <nav className="flex flex-wrap items-center gap-2">
           <Link to="/dashboard" className={linkClass("/dashboard")}>Shipments</Link>

@@ -27,9 +27,14 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top_left,_rgba(244,63,94,0.16),_transparent_42%),linear-gradient(135deg,_#fff7f8_0%,_#fff1f2_100%)] px-4 py-10">
       <div className="admin-card w-full max-w-md overflow-hidden">
         <div className="bg-rose-600 px-6 py-8 text-white">
-          <img src="/logo.svg" alt="General Logistics" className="mx-auto mb-4 h-16 w-auto" />
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-rose-100">Admin console</p>
-          <h1 className="mt-2 text-2xl font-semibold">Sign in to run operations</h1>
+          <div className="flex items-center gap-4 mb-4">
+            <img src="/logo.svg" alt="General Logistics" className="h-16 w-auto flex-shrink-0" />
+            <div>
+              <p className="text-2xl font-bold">General Logistics</p>
+              <p className="text-sm font-semibold text-rose-100">Administrative Control</p>
+            </div>
+          </div>
+          <h1 className="mt-4 text-2xl font-semibold">Sign in to run operations</h1>
           <p className="mt-2 text-sm text-rose-100">Dispatch loads, track shipments, and keep every move visible.</p>
         </div>
 
