@@ -3,9 +3,14 @@ import crypto from "crypto";
 import { pool } from "../db/pool.js";
 import { requireClient } from "../middleware/auth.js";
 import { geocodeAddress, haversineMiles } from "../services/geocode.js";
+import { sendWhatsApp, sendSMS } from "../services/notify.js";
+import { logEdi } from "../services/edi.js";
+
+const ADMIN_WHATSAPP_NUMBER = process.env.ADMIN_WHATSAPP_NUMBER || "+254798409150";
 
 const RATE_PER_MILE = 2.5;
 const FALLBACK_ESTIMATE = 450; // used only when no Maps key is configured yet
+const FULL_CONTAINER_FLAT_RATE = 1800; // flat rate regardless of distance/weight breakdown
 
 const router = Router();
 
@@ -21,9 +26,18 @@ router.get("/", requireClient, async (req, res) => {
 // Instant quote estimate for the booking tool. Falls back to a flat estimate if no
 // Google Maps API key is set yet — replace with a real quote once GOOGLE_MAPS_API_KEY exists.
 router.post("/quote", requireClient, async (req, res) => {
-  const { originAddress, destinationAddress } = req.body;
+  const { originAddress, destinationAddress, isFullContainer } = req.body;
   if (!originAddress || !destinationAddress) {
     return res.status(400).json({ error: "originAddress and destinationAddress are required" });
+  }
+
+  if (isFullContainer) {
+    return res.json({
+      estimated: true,
+      isFullContainer: true,
+      price: FULL_CONTAINER_FLAT_RATE,
+      note: "Flat rate for a full container, regardless of distance or weight."
+    });
   }
 
   const [origin, destination] = await Promise.all([
@@ -46,7 +60,10 @@ router.post("/quote", requireClient, async (req, res) => {
 
 // Create a new shipment from the client's booking tool — always scoped to their own customer_id.
 router.post("/", requireClient, async (req, res) => {
-  const { originAddress, destinationAddress, weightLbs, pickupDate } = req.body;
+  const {
+    originAddress, destinationAddress, weightLbs, pickupDate, isFullContainer,
+    requestedEquipmentType, borderCrossingPoint
+  } = req.body;
   if (!originAddress || !destinationAddress) {
     return res.status(400).json({ error: "originAddress and destinationAddress are required" });
   }
@@ -62,8 +79,9 @@ router.post("/", requireClient, async (req, res) => {
     const { rows } = await pool.query(
       `INSERT INTO shipments
         (pro_number, customer_id, status, origin_address, destination_address, weight_lbs, pickup_date,
-         origin_lat, origin_lng, destination_lat, destination_lng, driver_tracking_token)
-       VALUES ($1, $2, 'pending', $3, $4, $5, $6, $7, $8, $9, $10, $11)
+         origin_lat, origin_lng, destination_lat, destination_lng, driver_tracking_token, is_full_container,
+         requested_equipment_type, border_crossing_point, customs_status)
+       VALUES ($1, $2, 'pending', $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
        RETURNING *`,
       [
         proNumber,
@@ -76,10 +94,24 @@ router.post("/", requireClient, async (req, res) => {
         origin?.lng || null,
         destination?.lat || null,
         destination?.lng || null,
-        trackingToken
+        trackingToken,
+        Boolean(isFullContainer),
+        requestedEquipmentType || "V",
+        borderCrossingPoint || null,
+        borderCrossingPoint ? "pending" : "not_required"
       ]
     );
     res.status(201).json(rows[0]);
+
+    // Fire-and-forget notification — doesn't block the response to the client.
+    sendWhatsApp(
+      ADMIN_WHATSAPP_NUMBER,
+      `New cargo request ${proNumber}\nFrom: ${originAddress}\nTo: ${destinationAddress}\n` +
+        `${isFullContainer ? "Full container rental" : `Weight: ${weightLbs || "not specified"} lbs`}\n` +
+        `Check the dispatch board to assign a driver.`
+    );
+    sendSMS(ADMIN_WHATSAPP_NUMBER, `New cargo request ${proNumber}: ${originAddress} -> ${destinationAddress}`);
+    logEdi(pool, rows[0].id, "204", `Load Tender received: ${proNumber}, ${originAddress} -> ${destinationAddress}`);
   } catch (err) {
     console.error("Create portal shipment error:", err.message);
     res.status(500).json({ error: "Failed to create shipment" });

@@ -1,0 +1,1 @@
+ALTER TABLE shipments ADD COLUMN IF NOT EXISTS is_full_container BOOLEAN NOT NULL DEFAULT false;

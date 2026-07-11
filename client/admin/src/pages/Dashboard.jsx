@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "@shared/api/client.js";
 import StatusBadge from "@shared/components/StatusBadge.jsx";
 
+const CUSTOMS_COLORS = { pending: "text-amber-600", cleared: "text-emerald-700" };
+
 export default function Dashboard() {
   const [shipments, setShipments] = useState([]);
   const [error, setError] = useState(null);
@@ -20,6 +22,18 @@ export default function Dashboard() {
     try {
       await apiFetch(`/api/admin/shipments/${id}/deliver`, { method: "PATCH" });
       load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function updateCustoms(id, customsStatus) {
+    setShipments((prev) => prev.map((s) => (s.id === id ? { ...s, customs_status: customsStatus } : s)));
+    try {
+      await apiFetch(`/api/admin/shipments/${id}/customs-status`, {
+        method: "PATCH",
+        body: JSON.stringify({ customsStatus })
+      });
     } catch (err) {
       setError(err.message);
     }
@@ -70,7 +84,7 @@ export default function Dashboard() {
 
         {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
 
-        <div className="overflow-hidden rounded-xl border border-slate-200">
+        <div className="overflow-x-auto rounded-xl border border-slate-200">
           <table className="min-w-full text-sm">
             <thead className="bg-slate-50 text-left text-slate-500">
               <tr>
@@ -78,33 +92,48 @@ export default function Dashboard() {
                 <th className="px-4 py-3">Origin</th>
                 <th className="px-4 py-3">Destination</th>
                 <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Customs</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {shipments.map((s) => (
                 <tr key={s.id} className="border-t border-slate-200 bg-white">
-                  <td className="px-4 py-3 font-medium text-slate-900">{s.pro_number}</td>
+                  <td className="px-4 py-3 font-medium text-slate-900">
+                    {s.pro_number}
+                    {s.is_full_container && (
+                      <span className="ml-2 rounded-full bg-purple-100 px-2 py-0.5 text-xs text-purple-800">Full container</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-slate-600">{s.origin_address}</td>
                   <td className="px-4 py-3 text-slate-600">{s.destination_address}</td>
+                  <td className="px-4 py-3"><StatusBadge status={s.status} /></td>
                   <td className="px-4 py-3">
-                    <StatusBadge status={s.status} />
+                    {s.border_crossing_point ? (
+                      <div className="text-xs">
+                        <div className="text-slate-500">{s.border_crossing_point}</div>
+                        <select
+                          value={s.customs_status}
+                          onChange={(e) => updateCustoms(s.id, e.target.value)}
+                          className={`rounded border-none bg-transparent text-xs ${CUSTOMS_COLORS[s.customs_status] || "text-slate-400"}`}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="cleared">Cleared</option>
+                        </select>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-slate-300">—</span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex flex-wrap justify-end gap-2">
                       {s.driver_tracking_token && (
-                        <button
-                          onClick={() => copyDriverLink(s.driver_tracking_token)}
-                          className="admin-button-secondary px-3 py-1.5 text-xs"
-                        >
+                        <button onClick={() => copyDriverLink(s.driver_tracking_token)} className="admin-button-secondary px-3 py-1.5 text-xs">
                           Copy driver link
                         </button>
                       )}
                       {s.status === "in_transit" && (
-                        <button
-                          onClick={() => deliver(s.id)}
-                          className="rounded-lg border border-emerald-600 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
-                        >
+                        <button onClick={() => deliver(s.id)} className="rounded-lg border border-emerald-600 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50">
                           Mark delivered
                         </button>
                       )}

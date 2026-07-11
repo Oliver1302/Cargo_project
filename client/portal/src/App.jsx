@@ -6,6 +6,7 @@ import BookingTool from "./pages/BookingTool.jsx";
 import ShipmentDetail from "./pages/ShipmentDetail.jsx";
 import Invoices from "./pages/Invoices.jsx";
 import DriverTracking from "./pages/DriverTracking.jsx";
+import Profile from "./pages/Profile.jsx";
 
 function isAuthenticated() {
   return Boolean(localStorage.getItem("token"));
@@ -40,10 +41,11 @@ function NavBar() {
           <img src="/logo.png" alt="General Logistics" className="h-12 w-auto flex-shrink-0" />
           <span className="hidden text-sm font-semibold text-slate-900 sm:inline">Client Portal</span>
         </div>
-        <nav className="flex items-center gap-2">
+        <nav className="flex flex-wrap items-center gap-2">
           <Link to="/dashboard" className={linkClass("/dashboard")}>Shipments</Link>
           <Link to="/book" className={linkClass("/book")}>Book a shipment</Link>
           <Link to="/invoices" className={linkClass("/invoices")}>Invoices</Link>
+          <Link to="/profile" className={linkClass("/profile")}>Profile</Link>
           <button
             type="button"
             onClick={handleLogout}
@@ -66,38 +68,11 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/driver/:token" element={<DriverTracking />} />
-          <Route
-            path="/dashboard"
-            element={
-              <RequireAuth>
-                <Dashboard />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/book"
-            element={
-              <RequireAuth>
-                <BookingTool />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/shipments/:id"
-            element={
-              <RequireAuth>
-                <ShipmentDetail />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/invoices"
-            element={
-              <RequireAuth>
-                <Invoices />
-              </RequireAuth>
-            }
-          />
+          <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
+          <Route path="/book" element={<RequireAuth><BookingTool /></RequireAuth>} />
+          <Route path="/shipments/:id" element={<RequireAuth><ShipmentDetail /></RequireAuth>} />
+          <Route path="/invoices" element={<RequireAuth><Invoices /></RequireAuth>} />
+          <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </div>

@@ -117,6 +117,27 @@ export default function ShipmentDetail() {
           ))}
         </div>
       </section>
+
+      {shipment.border_crossing_point && (
+        <section className="portal-card p-6">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600">Cross-border</p>
+          <div className="mt-2 flex items-center justify-between">
+            <span className="text-sm text-slate-600">{shipment.border_crossing_point}</span>
+            <span className={`rounded-full px-3 py-1 text-xs font-medium ${
+              shipment.customs_status === "cleared" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+            }`}>
+              Customs: {shipment.customs_status}
+            </span>
+          </div>
+        </section>
+      )}
+
+      {shipment.pod_photo_base64 && (
+        <section className="portal-card p-6">
+          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-blue-600">Proof of delivery</p>
+          <img src={shipment.pod_photo_base64} alt="Signed proof of delivery" className="w-full rounded-xl border border-slate-200" />
+        </section>
+      )}
     </div>
   );
 }

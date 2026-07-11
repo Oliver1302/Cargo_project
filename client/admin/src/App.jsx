@@ -4,6 +4,10 @@ import Dashboard from "./pages/Dashboard.jsx";
 import DispatchBoard from "./pages/DispatchBoard.jsx";
 import NewShipment from "./pages/NewShipment.jsx";
 import LiveMap from "./pages/LiveMap.jsx";
+import Invoices from "./pages/Invoices.jsx";
+import EdiConsole from "./pages/EdiConsole.jsx";
+import DriverApplications from "./pages/DriverApplications.jsx";
+import Sales from "./pages/Sales.jsx";
 
 function isAuthenticated() {
   return Boolean(localStorage.getItem("token"));
@@ -41,7 +45,11 @@ function NavBar() {
           <Link to="/dashboard" className={linkClass("/dashboard")}>Shipments</Link>
           <Link to="/dispatch" className={linkClass("/dispatch")}>Dispatch</Link>
           <Link to="/new-shipment" className={linkClass("/new-shipment")}>New Shipment</Link>
+          <Link to="/invoices" className={linkClass("/invoices")}>Invoices</Link>
+          <Link to="/sales" className={linkClass("/sales")}>Sales</Link>
           <Link to="/map" className={linkClass("/map")}>Map</Link>
+          <Link to="/edi" className={linkClass("/edi")}>EDI</Link>
+          <Link to="/driver-applications" className={linkClass("/driver-applications")}>Drivers</Link>
           <button
             type="button"
             onClick={handleLogout}
@@ -62,38 +70,14 @@ export default function App() {
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route
-            path="/dashboard"
-            element={
-              <RequireAuth>
-                <Dashboard />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/dispatch"
-            element={
-              <RequireAuth>
-                <DispatchBoard />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/new-shipment"
-            element={
-              <RequireAuth>
-                <NewShipment />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/map"
-            element={
-              <RequireAuth>
-                <LiveMap />
-              </RequireAuth>
-            }
-          />
+          <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
+          <Route path="/dispatch" element={<RequireAuth><DispatchBoard /></RequireAuth>} />
+          <Route path="/new-shipment" element={<RequireAuth><NewShipment /></RequireAuth>} />
+          <Route path="/invoices" element={<RequireAuth><Invoices /></RequireAuth>} />
+          <Route path="/sales" element={<RequireAuth><Sales /></RequireAuth>} />
+          <Route path="/map" element={<RequireAuth><LiveMap /></RequireAuth>} />
+          <Route path="/edi" element={<RequireAuth><EdiConsole /></RequireAuth>} />
+          <Route path="/driver-applications" element={<RequireAuth><DriverApplications /></RequireAuth>} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </div>

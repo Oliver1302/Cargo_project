@@ -1,21 +1,17 @@
 {
-  "name": "logistics-admin-app",
+  "name": "logistics-landing",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5173",
+    "dev": "vite --port 5175",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@hello-pangea/dnd": "^16.6.0",
-    "@react-google-maps/api": "^2.19.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.0",
-    "recharts": "^2.12.7",
-    "zustand": "^4.5.4"
+    "react-router-dom": "^6.26.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
